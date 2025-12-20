@@ -281,7 +281,7 @@
     
     /* Quiz-Screen */
     #quiz-screen {
-      display: flex;
+      display: none;
       flex-direction: column;
       height: 100%;
     }
@@ -335,7 +335,7 @@
     
     /* Ergebnis-Screen */
     #result-screen {
-      display: flex;
+      display: none;
       flex-direction: column;
       justify-content: center;
       align-items: center;
@@ -480,7 +480,7 @@
   </div>
 
   <!-- QUIZ SCREEN -->
-  <div id="quiz-screen" class="hidden">
+  <div id="quiz-screen">
     <div class="quiz-header">
       <div class="progress" id="progress-text">Aufgabe 1 von 20</div>
       <span class="tag" id="variant-label">Mix: fünf nach</span>
@@ -534,7 +534,7 @@
   </div>
 
   <!-- RESULT SCREEN -->
-  <div id="result-screen" class="hidden">
+  <div id="result-screen">
     <h2 class="result-title">Geschafft! 🎉</h2>
     
     <div class="result-summary">
@@ -559,7 +559,7 @@
 
 <script>
 /* ==========================
-   SETTINGS
+   GLOBALE VARIABLEN
 ========================== */
 const TOTAL_QUESTIONS = 20;
 const GRADE_LABELS = {2:"2. Klasse",3:"3. Klasse"};
@@ -629,6 +629,29 @@ const checkBtn = document.getElementById("check-btn");
 
 const clockCanvas = document.getElementById("clock-canvas");
 const clockCtx = clockCanvas.getContext("2d");
+
+/* ==========================
+   SCREEN MANAGEMENT
+========================== */
+function showScreen(screenId) {
+  // Verstecke alle Screens
+  startScreen.style.display = 'none';
+  quizScreen.style.display = 'none';
+  resultScreen.style.display = 'none';
+  
+  // Zeige den gewünschten Screen
+  switch(screenId) {
+    case 'start':
+      startScreen.style.display = 'flex';
+      break;
+    case 'quiz':
+      quizScreen.style.display = 'flex';
+      break;
+    case 'result':
+      resultScreen.style.display = 'flex';
+      break;
+  }
+}
 
 /* ==========================
    HELPER FUNCTIONS
@@ -793,7 +816,7 @@ function drawClock(hour, minute) {
 }
 
 /* ==========================
-   UI CONTROLS
+   UI CONTROLS - START SCREEN
 ========================== */
 function updateStartControls() {
   if(!selectedGrade) {
@@ -834,14 +857,15 @@ difficultyGrid.querySelectorAll(".difficulty-btn").forEach(btn => {
   });
 });
 
-// Start Training
-startBtn.addEventListener("click", startTraining);
+// Start Training Button
+startBtn.addEventListener("click", () => {
+  console.log("Start button clicked");
+  startTraining();
+});
 
 // Restart Button
 restartBtn.addEventListener("click", () => {
-  quizScreen.classList.add("hidden");
-  resultScreen.classList.add("hidden");
-  startScreen.classList.remove("hidden");
+  showScreen('start');
 });
 
 // Finish Button
@@ -859,41 +883,56 @@ finishBtn.addEventListener("click", () => {
    QUIZ FLOW
 ========================== */
 function startTraining() {
+  console.log("Starting training...");
+  
+  // Reset all state
   questionsDone = 0;
   correctAnswers = 0;
   wrongAnswers = 0;
   usedKeys = new Set();
   lastMinuteUsed = null;
 
+  // Update stats display
   statCorrect.textContent = "0";
   statWrong.textContent = "0";
   statRemaining.textContent = "20";
 
+  // Reset recognition
   lastRaw = "";
   lastSpoken = "—";
   heardUI.textContent = "—";
   feedback.textContent = "";
   feedback.className = "feedback";
 
-  startScreen.classList.add("hidden");
-  resultScreen.classList.add("hidden");
-  quizScreen.classList.remove("hidden");
-
-  newQuestion();
+  // Show quiz screen
+  showScreen('quiz');
+  
+  // Generate and show first question
+  setTimeout(() => {
+    newQuestion();
+  }, 100);
 }
 
 function newQuestion() {
+  console.log("Generating new question...", questionsDone);
+  
+  // Reset UI for new question
   feedback.textContent = "";
   feedback.className = "feedback";
   lastRaw = "";
   lastSpoken = "—";
   heardUI.textContent = "—";
 
+  // Generate question
   currentQuestion = generateQuestion(questionsDone);
+  console.log("Generated question:", currentQuestion);
+  
+  // Update UI with question data
   variantLabel.textContent = `Mix: ${currentQuestion.label}`;
   equationText.textContent = `Sage die Uhrzeit für ${currentQuestion.hour}:${String(currentQuestion.minute).padStart(2, '0')}`;
   drawClock(currentQuestion.hour, currentQuestion.minute);
 
+  // Update progress
   progressText.textContent = `Aufgabe ${questionsDone + 1} von ${TOTAL_QUESTIONS}`;
   statRemaining.textContent = String(TOTAL_QUESTIONS - questionsDone);
 }
@@ -902,16 +941,21 @@ function applyRecognitionText(raw) {
   lastRaw = raw || "";
   lastSpoken = extractFirstAllowedPhrase(lastRaw);
   heardUI.textContent = lastSpoken;
+  console.log("Recognition result:", { raw, extracted: lastSpoken });
 }
 
 function checkAnswer() {
+  console.log("Checking answer...");
+  
   if(!lastRaw) {
-    showFeedback("Bitte sprechen oder zuerst auf 'Sprechen' klicken", "error");
+    showFeedback("Bitte zuerst auf 'Sprechen' klicken und die Uhrzeit sagen", "error");
     return;
   }
 
   const hay = normalizeForCompare(lastRaw);
   const needle = normalizeForCompare(currentQuestion.expected);
+  console.log("Comparing:", { hay, needle, expected: currentQuestion.expected });
+  
   const ok = hay.includes(needle);
 
   if(ok) {
@@ -925,6 +969,8 @@ function checkAnswer() {
   }
 
   questionsDone++;
+  console.log("Questions done:", questionsDone, "/", TOTAL_QUESTIONS);
+  
   if(questionsDone >= TOTAL_QUESTIONS) {
     setTimeout(endTraining, 1500);
   } else {
@@ -944,8 +990,7 @@ function showFeedback(message, type) {
 }
 
 function endTraining() {
-  quizScreen.classList.add("hidden");
-  resultScreen.classList.remove("hidden");
+  console.log("Ending training...");
   
   const percentage = ((correctAnswers / TOTAL_QUESTIONS) * 100).toFixed(0);
   const grade = percentage >= 90 ? "Sehr gut! 🏆" :
@@ -959,6 +1004,8 @@ function endTraining() {
     Richtig: <strong style="color: #10b981;">${correctAnswers}</strong> (${percentage}%)<br>
     Falsch: <strong style="color: #ef4444;">${wrongAnswers}</strong>
   `;
+  
+  showScreen('result');
 }
 
 /* ==========================
@@ -996,6 +1043,7 @@ function setupSpeech() {
     };
 
     recognizer.onerror = (e) => {
+      console.error("Speech recognition error:", e.error);
       isListening = false;
       micBtn.classList.remove("listening");
       micBtn.innerHTML = '<span>🎤</span> Sprechen';
@@ -1011,38 +1059,49 @@ function setupSpeech() {
 
     recognizer.onresult = (e) => {
       const transcript = e.results[0][0].transcript;
+      console.log("Speech recognized:", transcript);
       applyRecognitionText(transcript);
       showFeedback("Sprache erkannt! Klicke auf 'Überprüfen'", "ok");
     };
 
   } catch(error) {
-    console.error("Speech recognition error:", error);
+    console.error("Speech recognition setup error:", error);
     srNote.textContent = "Spracherkennung konnte nicht gestartet werden";
   }
 }
 
+// Mikrofon Button Event
 micBtn.addEventListener("click", () => {
+  console.log("Mic button clicked");
+  
   if(!recognizer) {
     setupSpeech();
-    if(!recognizer) return;
+    if(!recognizer) {
+      showFeedback("Spracherkennung nicht verfügbar", "error");
+      return;
+    }
   }
 
   if(isListening) {
+    console.log("Stopping recognition");
     recognizer.stop();
   } else {
+    console.log("Starting recognition");
     try {
       recognizer.start();
     } catch(error) {
+      console.error("Error starting recognition:", error);
       showFeedback("Bitte kurz warten und erneut klicken", "error");
     }
   }
 });
 
+// Check Button Event
 checkBtn.addEventListener("click", checkAnswer);
 
 // Enter-Taste für schnelle Überprüfung
 document.addEventListener("keydown", (e) => {
-  if(e.key === "Enter" && !quizScreen.classList.contains("hidden")) {
+  if(e.key === "Enter" && quizScreen.style.display === 'flex') {
     checkAnswer();
   }
 });
@@ -1051,13 +1110,27 @@ document.addEventListener("keydown", (e) => {
    INITIALIZATION
 ========================== */
 function init() {
+  console.log("Initializing app...");
+  
+  // Initialisiere die Uhr
   drawClock(12, 0);
+  
+  // Setup speech recognition
   setupSpeech();
+  
+  // Zeige Start-Screen
+  showScreen('start');
+  
+  // Initialisiere UI Controls
   updateStartControls();
 }
 
-// Starte die App
-init();
+// Starte die App wenn DOM geladen ist
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
 </script>
 </body>
 </html>

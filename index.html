@@ -3,608 +3,159 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Uhrzeit – Sprechen (Alltagssprache)</title>
+  <title>Uhrzeit – Sprechen (1. Klasse)</title>
   <style>
-    :root {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .app {
-      background: #fff;
-      border-radius: 24px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      padding: 2rem;
-      max-width: 1200px;
-      width: 100%;
-      aspect-ratio: 16/9;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    /* Header Bereich */
-    .app-header {
-      text-align: center;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 2px solid #f3f4f6;
-    }
-    h1 {
-      margin: 0 0 0.5rem;
-      font-size: 2.2rem;
-      color: #111827;
-      font-weight: 800;
-    }
-    .subtitle {
-      color: #6b7280;
-      margin: 0;
-      font-size: 1.1rem;
-      line-height: 1.4;
-    }
-    
-    /* Hauptinhalt mit Grid */
-    .app-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2.5rem;
-      flex: 1;
-      align-items: center;
-    }
-    
-    /* Linke Seite - Uhr und Steuerung */
-    .clock-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
-    }
-    .clock-wrapper {
-      position: relative;
-    }
-    #clock-canvas {
-      background: #f9fafb;
-      border-radius: 50%;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(0, 0, 0, 0.05);
-      border: 8px solid #ffffff;
-    }
-    .clock-label {
-      position: absolute;
-      bottom: -20px;
-      left: 0;
-      right: 0;
-      text-align: center;
-      font-size: 1rem;
-      color: #4b5563;
-      font-weight: 600;
-    }
-    
-    /* Rechte Seite - Interaktion */
-    .interaction-section {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-    
-    /* Antwort-Bereich */
-    .answer-box {
-      background: #f9fafb;
-      border-radius: 20px;
-      padding: 1.5rem;
-      border: 2px solid #e5e7eb;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-    }
-    .equation {
-      text-align: center;
-      margin: 0 0 1rem;
-      font-size: 1.3rem;
-      color: #111827;
-      font-weight: 800;
-    }
-    
-    /* Mikrofon und Buttons */
-    .mic-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .mic-btn {
-      padding: 1rem 1.5rem;
-      font-size: 1.1rem;
-      border-radius: 16px;
-      border: none;
-      cursor: pointer;
-      font-weight: 800;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      transition: all 0.3s ease;
-    }
-    .mic-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-    }
-    .mic-btn.listening {
-      background: linear-gradient(135deg, #f56565 0%, #ed8936 100%);
-      animation: pulse 1.5s infinite;
-    }
-    .mic-btn:disabled {
-      background: #9ca3af;
-      cursor: not-allowed;
-      transform: none;
-    }
-    .check-btn {
-      padding: 1rem 1.5rem;
-      font-size: 1.1rem;
-      border-radius: 16px;
-      border: 2px solid #2563eb;
-      background: white;
-      color: #2563eb;
-      font-weight: 800;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .check-btn:hover {
-      background: #2563eb;
-      color: white;
-      transform: translateY(-2px);
-    }
-    
-    /* Erkannte Sprache */
-    .heard {
-      background: white;
-      border: 2px solid #e5e7eb;
-      border-radius: 16px;
-      padding: 1.2rem;
-      min-height: 80px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      margin-top: 1rem;
-    }
-    .heard-label {
-      font-size: 0.9rem;
-      color: #6b7280;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-    }
-    .heard-text {
-      font-size: 1.3rem;
-      color: #111827;
-      font-weight: 800;
-      word-break: break-word;
-      min-height: 1.5em;
-    }
-    
-    /* Feedback */
-    .feedback {
-      margin-top: 1rem;
-      padding: 1rem;
-      border-radius: 16px;
-      font-weight: 800;
-      text-align: center;
-      font-size: 1.2rem;
-      animation: slideIn 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-    .feedback.ok {
-      background: #d1fae5;
-      color: #065f46;
-      border: 2px solid #10b981;
-    }
-    .feedback.error {
-      background: #fee2e2;
-      color: #991b1b;
-      border: 2px solid #ef4444;
-    }
-    
-    /* Start-Bildschirm */
-    #start-screen {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100%;
-      text-align: center;
-    }
-    .choice-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-      margin: 1.5rem 0;
-      width: 80%;
-    }
-    .choice-btn {
-      padding: 1.2rem 1rem;
-      border-radius: 16px;
-      border: 3px solid #e5e7eb;
-      background: #f9fafb;
-      font-size: 1.1rem;
-      font-weight: 800;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .choice-btn:hover {
-      border-color: #2563eb;
-      transform: translateY(-2px);
-    }
-    .choice-btn.selected {
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-      color: white;
-      border-color: #1d4ed8;
-      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
-    }
-    .selected-info {
-      font-size: 1rem;
-      color: #4b5563;
-      margin: 1rem 0;
-      min-height: 1.5rem;
-      font-weight: 600;
-    }
-    .start-btn {
-      margin-top: 1.5rem;
-      padding: 1.2rem 3rem;
-      font-size: 1.3rem;
-      border: none;
-      border-radius: 16px;
-      cursor: pointer;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: white;
-      font-weight: 800;
-      transition: all 0.3s ease;
-      width: 80%;
-    }
-    .start-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
-    }
-    .start-btn:disabled {
-      background: #9ca3af;
-      cursor: not-allowed;
-    }
-    
-    /* Quiz-Screen */
-    #quiz-screen {
-      display: none;
-      flex-direction: column;
-      height: 100%;
-    }
-    .quiz-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-    .progress {
-      font-size: 1.1rem;
-      color: #4b5563;
-      font-weight: 600;
-    }
-    .tag {
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-      color: white;
-      padding: 0.5rem 1.5rem;
-      border-radius: 20px;
-      font-size: 1rem;
-      font-weight: 800;
-    }
-    
-    /* Statistik */
-    .stats {
-      background: #f9fafb;
-      border-radius: 16px;
-      padding: 1rem 1.5rem;
-      margin-top: auto;
-      border: 2px solid #e5e7eb;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      text-align: center;
-    }
-    .stat-item {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-    .stat-label {
-      font-size: 0.9rem;
-      color: #6b7280;
-      font-weight: 600;
-    }
-    .stat-value {
-      font-size: 1.5rem;
-      color: #111827;
-      font-weight: 800;
-    }
-    
-    /* Ergebnis-Screen */
-    #result-screen {
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100%;
-      text-align: center;
-    }
-    .result-title {
-      font-size: 2.5rem;
-      color: #111827;
-      margin-bottom: 1.5rem;
-      font-weight: 800;
-    }
-    .result-summary {
-      background: #f9fafb;
-      border-radius: 20px;
-      padding: 2rem;
-      margin: 1.5rem 0;
-      border: 2px solid #e5e7eb;
-      max-width: 80%;
-    }
-    .result-stats {
-      font-size: 1.3rem;
-      color: #374151;
-      line-height: 1.6;
-    }
-    .result-actions {
-      display: flex;
-      gap: 1.5rem;
-      margin-top: 2rem;
-    }
-    .finish-btn, .restart-btn {
-      padding: 1rem 2.5rem;
-      font-size: 1.2rem;
-      border-radius: 16px;
-      border: none;
-      cursor: pointer;
-      font-weight: 800;
-      transition: all 0.3s ease;
-    }
-    .finish-btn {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: white;
-    }
-    .finish-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-    }
-    .restart-btn {
-      background: white;
-      color: #4b5563;
-      border: 2px solid #d1d5db;
-    }
-    .restart-btn:hover {
-      background: #f3f4f6;
-      transform: translateY(-2px);
-    }
-    
-    /* Hilfetext */
-    .hint {
-      font-size: 0.9rem;
-      color: #9ca3af;
-      text-align: center;
-      margin-top: 0.5rem;
-      line-height: 1.4;
-    }
-    
-    /* Animationen */
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-    
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    /* Responsive Anpassungen */
-    @media (max-width: 1024px) {
-      .app {
-        max-width: 95%;
-        padding: 1.5rem;
-      }
-      h1 {
-        font-size: 1.8rem;
-      }
-      .app-content {
-        gap: 1.5rem;
-      }
-    }
-    
-    @media (max-width: 768px) {
-      .app-content {
-        grid-template-columns: 1fr;
-      }
-      .clock-section {
-        order: 2;
-      }
-      .interaction-section {
-        order: 1;
-      }
-      .stats {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
-      }
-    }
+    :root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f3f4f6;}
+    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:14px;}
+    .app{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.1);padding:1.6rem 1.4rem;max-width:660px;width:100%;box-sizing:border-box;}
+    h1{margin:0 0 .4rem;text-align:center;font-size:1.6rem;}
+    .subtitle{text-align:center;color:#4b5563;margin-bottom:1rem;font-size:.95rem;line-height:1.35;}
+    .hidden{display:none;}
+    .center{text-align:center;}
+    .choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem;margin:.7rem 0 .4rem;}
+    .choice-btn{padding:.9rem .6rem;border-radius:16px;border:2px solid #d1d5db;background:#f9fafb;font-size:1rem;font-weight:650;cursor:pointer;}
+    .choice-btn.selected{background:#2563eb;color:#fff;border-color:#1d4ed8;box-shadow:0 5px 15px rgba(37,99,235,.35);}
+    .selected-info{font-size:.85rem;color:#6b7280;text-align:center;min-height:1.2rem;margin:.2rem 0 .3rem;}
+    .primary-btn{margin-top:.8rem;width:100%;padding:.75rem 1rem;font-size:1.1rem;border:none;border-radius:999px;cursor:pointer;background:#2563eb;color:#fff;font-weight:800;}
+    .primary-btn:disabled{background:#9ca3af;cursor:not-allowed;}
+    .secondary-btn{margin-top:.4rem;width:100%;padding:.65rem 1rem;font-size:1rem;border-radius:999px;border:1px solid #d1d5db;cursor:pointer;background:#f9fafb;color:#111827;font-weight:700;}
+    .progress{text-align:center;color:#6b7280;font-size:.9rem;margin-bottom:.4rem;}
+    .tag{display:inline-block;border-radius:999px;padding:.15rem .6rem;font-size:.8rem;background:#eff6ff;color:#1d4ed8;}
+    .clock-wrapper{display:flex;justify-content:center;margin-top:.6rem;}
+    #clock-canvas{background:#f9fafb;border-radius:50%;box-shadow:inset 0 0 5px rgba(0,0,0,.08);}
+    .answer-box{margin-top:1rem;border:1px solid #e5e7eb;background:#f9fafb;border-radius:14px;padding:.9rem;}
+    .equation{text-align:center;margin:.4rem 0 .2rem;font-size:1.05rem;color:#111827;font-weight:900;}
+    .mic-row{display:grid;grid-template-columns:1fr;gap:.6rem;margin-top:.6rem;}
+    @media (min-width:560px){.mic-row{grid-template-columns:1fr 1fr;}}
+    .mic-btn{width:100%;padding:.75rem 1rem;font-size:1.05rem;border-radius:999px;border:none;cursor:pointer;font-weight:900;background:#111827;color:#fff;}
+    .mic-btn.listening{background:#dc2626;}
+    .mic-btn:disabled{background:#9ca3af;cursor:not-allowed;}
+    .heard{margin-top:.6rem;font-size:.98rem;color:#111827;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:.7rem .8rem;min-height:2.2rem;word-break:break-word;}
+    .heard strong{display:block;margin-bottom:.25rem;color:#374151;}
+    .hint{font-size:.85rem;color:#6b7280;margin-top:.5rem;line-height:1.35;}
+    .feedback{min-height:1.4rem;margin-top:.6rem;font-weight:900;text-align:center;}
+    .feedback.ok{color:#15803d;}
+    .feedback.error{color:#b91c1c;}
+    .stats{margin-top:.9rem;font-size:.95rem;color:#374151;}
+    .input-fallback{width:100%;padding:.7rem .8rem;border-radius:12px;border:2px solid #d1d5db;background:#fff;font-size:1.02rem;font-weight:650;color:#111827;outline:none;box-sizing:border-box;}
   </style>
 </head>
 <body>
 <div class="app">
-  <!-- START SCREEN -->
+  <h1>Wie spät ist es?</h1>
+  <div class="subtitle">
+    Lies die analoge Uhr und sage die <strong>Uhrzeit in Alltagssprache</strong>.<br>
+    <strong>Einfach:</strong> nur <strong>volle</strong> & <strong>halbe</strong> Stunden.<br>
+    <strong>Schwierig:</strong> zusätzlich <strong>Viertel nach</strong> & <strong>Viertel vor</strong>.
+  </div>
+
+  <!-- START -->
   <div id="start-screen">
-    <h1>Uhrzeit üben 🇩🇪</h1>
-    <p class="subtitle">Lies die analoge Uhr und <strong>sage die Uhrzeit</strong> in Umgangssprache</p>
-    
-    <div style="margin-top: 2rem;">
-      <div style="margin-bottom: 1rem; font-size: 1.2rem; color: #4b5563; font-weight: 600;">Klasse wählen</div>
-      <div class="choice-grid" id="grade-grid">
-        <button type="button" class="choice-btn grade-btn" data-grade="2">2. Klasse</button>
-        <button type="button" class="choice-btn grade-btn" data-grade="3">3. Klasse</button>
-      </div>
+    <div class="center"><p>Bitte Schwierigkeit wählen.</p></div>
+
+    <div class="center" style="margin-top:1rem;">Schwierigkeit</div>
+    <div class="choice-grid" id="difficulty-grid">
+      <button type="button" class="choice-btn difficulty-btn" data-diff="easy">einfach</button>
+      <button type="button" class="choice-btn difficulty-btn" data-diff="hard">schwierig</button>
     </div>
-    
-    <div style="margin-top: 2rem;">
-      <div style="margin-bottom: 1rem; font-size: 1.2rem; color: #4b5563; font-weight: 600;">Schwierigkeit</div>
-      <div class="choice-grid" id="difficulty-grid">
-        <button type="button" class="choice-btn difficulty-btn" data-diff="easy">Einfach</button>
-        <button type="button" class="choice-btn difficulty-btn" data-diff="hard">Schwierig</button>
-      </div>
-    </div>
-    
+
     <div class="selected-info" id="selected-info"></div>
-    <button class="start-btn" id="start-btn" disabled>Start Training</button>
-    <div class="hint" id="sr-note">Mikrofon erlauben für Spracherkennung (Chrome/Edge empfohlen)</div>
+    <button class="primary-btn" id="start-btn" disabled>Los!</button>
+    <div class="hint center" id="sr-note"></div>
   </div>
 
-  <!-- QUIZ SCREEN -->
-  <div id="quiz-screen">
-    <div class="quiz-header">
-      <div class="progress" id="progress-text">Aufgabe 1 von 20</div>
-      <span class="tag" id="variant-label">Mix: fünf nach</span>
+  <!-- QUIZ -->
+  <div id="quiz-screen" class="hidden">
+    <div class="progress" id="progress-text"></div>
+    <div class="center">
+      <span class="tag" id="variant-label"></span>
+      <div class="equation">Klicke auf Sprechen und sage die passende Uhrzeit:</div>
+      <div class="hint">Anzeige zeigt <strong>deinen Text</strong>. Wenn er stimmt: <strong>Überprüfen</strong>.</div>
     </div>
-    
-    <div class="app-content">
-      <!-- Linke Seite: Uhr -->
-      <div class="clock-section">
-        <div class="clock-wrapper">
-          <canvas id="clock-canvas" width="300" height="300"></canvas>
-          <div class="clock-label">Sage die Uhrzeit in Deutsch</div>
-        </div>
-      </div>
-      
-      <!-- Rechte Seite: Interaktion -->
-      <div class="interaction-section">
-        <div class="answer-box">
-          <div class="equation" id="equation-text">Sage die passende Uhrzeit:</div>
-          
-          <div class="mic-row">
-            <button class="mic-btn" id="mic-btn">
-              <span>🎤</span> Sprechen
-            </button>
-            <button class="check-btn" id="check-btn">Überprüfen</button>
-          </div>
-          
-          <div class="heard">
-            <div class="heard-label">Erkannte Sprache:</div>
-            <div class="heard-text" id="heard-ui">—</div>
-          </div>
-          
-          <div class="feedback" id="feedback"></div>
-        </div>
-      </div>
+
+    <div class="clock-wrapper">
+      <canvas id="clock-canvas" width="240" height="240"></canvas>
     </div>
-    
+
+    <div class="answer-box">
+      <div class="mic-row">
+        <button class="mic-btn" id="mic-btn">🎤 Sprechen</button>
+        <button class="secondary-btn" id="check-btn" style="margin-top:0;">Überprüfen</button>
+      </div>
+
+      <div id="fallback-wrap" class="hidden" style="margin-top:.6rem;">
+        <input id="fallback-input" class="input-fallback" placeholder="Falls Sprechen nicht geht: Text eintippen…" />
+        <div class="hint">Chrome/Edge empfohlen.</div>
+      </div>
+
+      <div class="heard" id="heard-raw"><strong>Rohtext (1:1):</strong> —</div>
+      <div class="heard" id="heard-col"><strong>Text in Alltagssprache:</strong> —</div>
+
+      <div class="feedback" id="feedback"></div>
+    </div>
+
     <div class="stats">
-      <div class="stat-item">
-        <div class="stat-label">Richtig</div>
-        <div class="stat-value" id="stat-correct">0</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-label">Falsch</div>
-        <div class="stat-value" id="stat-wrong">0</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-label">Verbleibend</div>
-        <div class="stat-value" id="stat-remaining">20</div>
-      </div>
+      Richtig: <span id="stat-correct">0</span> / <span id="stat-total">20</span><br>
+      Falsche Versuche: <span id="stat-wrong">0</span><br>
+      Modus: <span id="stat-mode"></span>
     </div>
   </div>
 
-  <!-- RESULT SCREEN -->
-  <div id="result-screen">
-    <h2 class="result-title">Geschafft! 🎉</h2>
-    
-    <div class="result-summary">
-      <div class="result-stats" id="result-summary">
-        Du hast <strong>20 Uhrzeiten</strong> gelöst.<br>
-        Richtig: <strong>0</strong> (0%)<br>
-        Falsch: <strong>0</strong>
-      </div>
-    </div>
-    
-    <p style="color: #6b7280; max-width: 80%; line-height: 1.6; margin: 1rem 0;">
-      Klicke auf <strong>„Fertig"</strong> um den Auftrag abzuschließen,<br>
-      oder <strong>„Weiter üben"</strong> für mehr Training.
+  <!-- RESULT -->
+  <div id="result-screen" class="hidden center">
+    <h2>Fertig! 🎉</h2>
+    <p id="result-summary"></p>
+    <p style="margin-top:.8rem; font-size:.9rem; color:#4b5563;">
+      Klicke auf <strong>„Fertig“</strong>, damit LearningView den Auftrag als erledigt markiert.
     </p>
-    
-    <div class="result-actions">
-      <button class="finish-btn" id="finish-btn">Fertig</button>
-      <button class="restart-btn" id="restart-btn">Weiter üben</button>
-    </div>
+    <button class="primary-btn" id="finish-btn">Fertig</button>
+    <button class="secondary-btn" id="restart-btn">Weiter üben</button>
   </div>
 </div>
 
 <script>
 /* ==========================
-   GLOBALE VARIABLEN
+   SETTINGS / STATE
 ========================== */
 const TOTAL_QUESTIONS = 20;
-const GRADE_LABELS = {2:"2. Klasse",3:"3. Klasse"};
-const DIFF_LABELS  = {easy:"Einfach",hard:"Schwierig"};
+const DIFF_LABELS  = {easy:"einfach",hard:"schwierig"};
 
-const HOURS = ["eins","zwei","drei","vier","fünf","sechs","sieben","acht","neun","zehn","elf","zwölf"];
-const PREFIXES = [
-  "punkt",
-  "fünf nach","zehn nach","viertel nach","zwanzig nach",
-  "fünf vor halb","halb","fünf nach halb",
-  "zwanzig vor","viertel vor","zehn vor","fünf vor"
+const HOURS_WORDS = ["eins","zwei","drei","vier","fünf","sechs","sieben","acht","neun","zehn","elf","zwölf"];
+const numToWord = (n)=>HOURS_WORDS[(n-1+12)%12];
+
+const correctSound = new Audio("audio/correct.wav");
+const errorSound   = new Audio("audio/error.wav");
+
+/* Minuten-Muster pro Schwierigkeitsgrad (1. Klasse) */
+const PATTERNS_EASY = [
+  { minute: 0,  label: "punkt" },
+  { minute: 30, label: "halb" },
 ];
-
-// Minuten-Zyklus für Abwechslung
-const MINUTE_CYCLE = [
-  { minute: 5,  label: "fünf nach" },
-  { minute: 20, label: "zwanzig nach" },
+const PATTERNS_HARD = [
+  { minute: 0,  label: "punkt" },
+  { minute: 15, label: "viertel nach" },
+  { minute: 30, label: "halb" },
   { minute: 45, label: "viertel vor" },
-  { minute: 25, label: "fünf vor halb" },
-  { minute: 35, label: "fünf nach halb" },
-  { minute: 15, label: "viertel nach" }
 ];
 
-/* ==========================
-   STATE
-========================== */
-let selectedGrade = null;
-let selectedDifficulty = null;
-let questionsDone = 0;
-let correctAnswers = 0;
-let wrongAnswers = 0;
+let selectedDifficulty=null;
+let questionsDone=0, correctAnswers=0, wrongAnswers=0;
 let usedKeys = new Set();
-let currentQuestion = null;
+let currentQuestion=null;
+
 let lastRaw = "";
-let lastSpoken = "—";
-let lastMinuteUsed = null;
+let lastCol = "";
+let speechBuffer = "";
+let silenceTimer = null;
+let lastFinalChunk = "";
 
 /* ==========================
-   DOM ELEMENTS
+   DOM
 ========================== */
 const startScreen = document.getElementById("start-screen");
 const quizScreen = document.getElementById("quiz-screen");
 const resultScreen = document.getElementById("result-screen");
 
-const gradeGrid = document.getElementById("grade-grid");
 const difficultyGrid = document.getElementById("difficulty-grid");
 const selectedInfo = document.getElementById("selected-info");
 const startBtn = document.getElementById("start-btn");
@@ -612,13 +163,15 @@ const srNote = document.getElementById("sr-note");
 
 const progressText = document.getElementById("progress-text");
 const variantLabel = document.getElementById("variant-label");
-const equationText = document.getElementById("equation-text");
-const heardUI = document.getElementById("heard-ui");
+
+const heardRawEl = document.getElementById("heard-raw");
+const heardColEl = document.getElementById("heard-col");
 const feedback = document.getElementById("feedback");
 
 const statCorrect = document.getElementById("stat-correct");
+const statTotal = document.getElementById("stat-total");
 const statWrong = document.getElementById("stat-wrong");
-const statRemaining = document.getElementById("stat-remaining");
+const statMode = document.getElementById("stat-mode");
 
 const restartBtn = document.getElementById("restart-btn");
 const finishBtn = document.getElementById("finish-btn");
@@ -626,511 +179,471 @@ const resultSummary = document.getElementById("result-summary");
 
 const micBtn = document.getElementById("mic-btn");
 const checkBtn = document.getElementById("check-btn");
+const fallbackWrap = document.getElementById("fallback-wrap");
+const fallbackInput = document.getElementById("fallback-input");
 
 const clockCanvas = document.getElementById("clock-canvas");
 const clockCtx = clockCanvas.getContext("2d");
 
 /* ==========================
-   SCREEN MANAGEMENT
+   HELPERS
 ========================== */
-function showScreen(screenId) {
-  // Verstecke alle Screens
-  startScreen.style.display = 'none';
-  quizScreen.style.display = 'none';
-  resultScreen.style.display = 'none';
-  
-  // Zeige den gewünschten Screen
-  switch(screenId) {
-    case 'start':
-      startScreen.style.display = 'flex';
-      break;
-    case 'quiz':
-      quizScreen.style.display = 'flex';
-      break;
-    case 'result':
-      resultScreen.style.display = 'flex';
-      break;
-  }
+function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function clamp12(h){ return ((h-1)%12)+1; }
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
 }
-
-/* ==========================
-   HELPER FUNCTIONS
-========================== */
-function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function clamp12(h) {
-  return ((h - 1) % 12) + 1;
-}
-
-function hourToWord(h) {
-  return HOURS[(clamp12(h) - 1)];
-}
-
-function normalizeForCompare(s) {
-  return String(s || "")
+function normalizeForCompare(s){
+  return String(s)
     .toLowerCase()
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-/* ==========================
-   TIME TO COLLOQUIAL
-========================== */
-function timeToColloquial(hour, minute) {
+function getActivePatterns(){
+  return (selectedDifficulty==="hard") ? PATTERNS_HARD : PATTERNS_EASY;
+}
+
+function timeToColloquial(hour, minute){
   const h = clamp12(hour);
-  const next = (h % 12) + 1;
-  const hw = hourToWord(h);
-  const nhw = hourToWord(next);
-  
-  switch(minute) {
+  const next = (h%12)+1;
+  const hw = numToWord(h);
+  const nhw = numToWord(next);
+
+  switch(minute){
     case 0:  return `punkt ${hw}`;
-    case 5:  return `fünf nach ${hw}`;
-    case 10: return `zehn nach ${hw}`;
-    case 15: return `viertel nach ${hw}`;
-    case 20: return `zwanzig nach ${hw}`;
-    case 25: return `fünf vor halb ${nhw}`;
     case 30: return `halb ${nhw}`;
-    case 35: return `fünf nach halb ${nhw}`;
-    case 40: return `zwanzig vor ${nhw}`;
+    case 15: return `viertel nach ${hw}`;
     case 45: return `viertel vor ${nhw}`;
-    case 50: return `zehn vor ${nhw}`;
-    case 55: return `fünf vor ${nhw}`;
-    default: return `punkt ${hw}`;
+    default: return hw;
   }
 }
 
-/* ==========================
-   PHRASE EXTRACTION
-========================== */
-function extractFirstAllowedPhrase(raw) {
-  const clean = normalizeForCompare(raw);
-  const prefixesSorted = [...PREFIXES].sort((a, b) => b.length - a.length);
-
-  for(const p of prefixesSorted) {
-    for(const h of HOURS) {
-      const phrase = normalizeForCompare(`${p} ${h}`);
-      if(clean.includes(phrase)) {
-        return `${p} ${h}`;
-      }
-    }
-  }
-  return "—";
+function playSound(a){
+  try{
+    a.pause();
+    a.currentTime = 0;
+    const p = a.play();
+    if(p && typeof p.catch === "function") p.catch(()=>{});
+  }catch(_){}
 }
 
 /* ==========================
-   QUESTION GENERATION
+   ROH -> ALLTAGSTEXT
+   (Zahlzeiten werden auf punkt/halb/viertel nach/viertel vor umgeschrieben)
 ========================== */
-function generateQuestion(index) {
-  let minute = MINUTE_CYCLE[index % MINUTE_CYCLE.length].minute;
+function normalizeToColloquialText(raw){
+  if(!raw) return "";
+  let t = raw.replace(/\s+/g," ").trim();
 
-  if(lastMinuteUsed !== null && minute === lastMinuteUsed) {
-    minute = MINUTE_CYCLE[(index + 1) % MINUTE_CYCLE.length].minute;
+  // Reine Zahlzeit: "9:15" / "09.45"
+  t = t.replace(/\b(\d{1,2})[:.](\d{2})\b/g, (m, hh, mm) => {
+    let H = parseInt(hh,10);
+    let M = parseInt(mm,10);
+    if(!Number.isFinite(H) || !Number.isFinite(M)) return m;
+    if(H===0) H=12;
+    H = ((H-1)%12)+1;
+
+    // nur Minuten erlauben, die im Modus vorkommen (easy: 0/30, hard: 0/15/30/45)
+    const allowed = new Set(getActivePatterns().map(p=>p.minute));
+    if(!allowed.has(M)) return m;
+
+    return timeToColloquial(H, M);
+  });
+
+  // Ziffern 0..12 als Tokens -> Wort (Anzeige angenehmer)
+  const map = {
+    "0":"zwölf","1":"eins","2":"zwei","3":"drei","4":"vier","5":"fünf","6":"sechs",
+    "7":"sieben","8":"acht","9":"neun","10":"zehn","11":"elf","12":"zwölf",
+    "15":"fünfzehn","30":"dreissig","45":"fünfundvierzig"
+  };
+  t = t.replace(/\b(45|30|15|1[0-2]|[0-9])\b/g, m => map[m] ?? m);
+
+  return t.toLowerCase().replace(/\s+/g," ").trim();
+}
+
+function bufferHasHour(text){
+  const t = normalizeForCompare(text);
+  if (/\b(eins|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|elf|zwölf)\b/.test(t)) return true;
+  if (/\b(1[0-2]|[1-9])\b/.test(t)) return true;
+  return false;
+}
+
+/* ==========================
+   QUIZ GENERATION (20)
+========================== */
+let lastMinute = null;
+
+function generateQuestion(index){
+  const patterns = getActivePatterns();
+  let minute = patterns[index % patterns.length].minute;
+
+  // nicht zweimal dieselbe Minute hintereinander, wenn möglich
+  if(lastMinute !== null && minute === lastMinute && patterns.length > 1){
+    minute = patterns[(index+1) % patterns.length].minute;
   }
-  lastMinuteUsed = minute;
+  lastMinute = minute;
 
-  let hour, tries = 0;
-  while(true) {
-    hour = randomInt(1, 12);
-    const key = `${hour}:${minute}`;
-    if(!usedKeys.has(key)) {
+  let hour, tries=0;
+  while(true){
+    hour = randomInt(1,12);
+    const key = `${hour}:${minute}:${selectedDifficulty}`; // Modus mit reinnehmen
+    if(!usedKeys.has(key)){
       usedKeys.add(key);
       break;
     }
-    if(++tries > 300) break;
+    if(++tries>200) break;
   }
 
   const expected = timeToColloquial(hour, minute);
-  const label = MINUTE_CYCLE[index % MINUTE_CYCLE.length].label;
-  return { hour, minute, expected, label };
+  const label = patterns.find(p=>p.minute===minute)?.label ?? "";
+  return {hour, minute, expected, label};
 }
 
 /* ==========================
-   CLOCK DRAWING
+   CLOCK
 ========================== */
-function drawClock(hour, minute) {
-  const ctx = clockCtx;
-  const w = clockCanvas.width;
-  const h = clockCanvas.height;
-  const r = Math.min(w, h) / 2 - 15;
-  const cx = w / 2;
-  const cy = h / 2;
+function drawClock(hour, minute){
+  const ctx=clockCtx;
+  const w=clockCanvas.width, h=clockCanvas.height;
+  const r=Math.min(w,h)/2-12;
+  const cx=w/2, cy=h/2;
 
-  ctx.clearRect(0, 0, w, h);
+  ctx.clearRect(0,0,w,h);
   ctx.save();
-  ctx.translate(cx, cy);
+  ctx.translate(cx,cy);
 
-  // Uhrzifferblatt
   ctx.beginPath();
-  ctx.arc(0, 0, r, 0, Math.PI * 2);
-  ctx.fillStyle = "#ffffff";
+  ctx.arc(0,0,r,0,Math.PI*2);
+  ctx.fillStyle="#ffffff";
   ctx.fill();
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = "#111827";
+  ctx.lineWidth=3;
+  ctx.strokeStyle="#111827";
   ctx.stroke();
 
-  // Striche für Stunden und Minuten
-  for(let i = 0; i < 60; i++) {
-    const a = (Math.PI / 30) * i - Math.PI / 2;
-    const isHour = (i % 5 === 0);
-    const outer = r - 8;
-    const inner = r - (isHour ? 25 : 15);
-    
+  for(let i=0;i<60;i++){
+    const a=(Math.PI/30)*i - Math.PI/2;
+    const isHour=(i%5===0);
+    const outer=r-6;
+    const inner=r-(isHour?20:12);
     ctx.beginPath();
-    ctx.moveTo(inner * Math.cos(a), inner * Math.sin(a));
-    ctx.lineTo(outer * Math.cos(a), outer * Math.sin(a));
-    ctx.lineWidth = isHour ? 3 : 1.5;
-    ctx.strokeStyle = "#111827";
+    ctx.moveTo(inner*Math.cos(a), inner*Math.sin(a));
+    ctx.lineTo(outer*Math.cos(a), outer*Math.sin(a));
+    ctx.lineWidth=isHour?3:1.2;
+    ctx.strokeStyle="#111827";
     ctx.stroke();
   }
 
-  // Minutenzeiger (blau)
-  const ma = (Math.PI / 30) * minute - Math.PI / 2;
+  // Minutenzeiger blau (dicker)
+  const ma=(Math.PI/30)*minute - Math.PI/2;
   ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo((r - 30) * Math.cos(ma), (r - 30) * Math.sin(ma));
-  ctx.lineWidth = 5;
-  ctx.strokeStyle = "#2563eb";
-  ctx.lineCap = "round";
+  ctx.moveTo(0,0);
+  ctx.lineTo((r-24)*Math.cos(ma), (r-24)*Math.sin(ma));
+  ctx.lineWidth=4;
+  ctx.strokeStyle="#2563eb";
+  ctx.lineCap="round";
   ctx.stroke();
 
-  // Stundenzeiger (rot)
-  const ha = (Math.PI / 6) * ((hour % 12) + minute / 60) - Math.PI / 2;
+  // Stundenzeiger rot (dicker)
+  const ha=(Math.PI/6)*((hour%12)+minute/60) - Math.PI/2;
   ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo((r - 70) * Math.cos(ha), (r - 70) * Math.sin(ha));
-  ctx.lineWidth = 6;
-  ctx.strokeStyle = "#dc2626";
-  ctx.lineCap = "round";
+  ctx.moveTo(0,0);
+  ctx.lineTo((r-62)*Math.cos(ha), (r-62)*Math.sin(ha));
+  ctx.lineWidth=5;
+  ctx.strokeStyle="#dc2626";
+  ctx.lineCap="round";
   ctx.stroke();
 
-  // Mittelpunkt
   ctx.beginPath();
-  ctx.arc(0, 0, 6, 0, Math.PI * 2);
-  ctx.fillStyle = "#111827";
+  ctx.arc(0,0,5,0,Math.PI*2);
+  ctx.fillStyle="#111827";
   ctx.fill();
 
   ctx.restore();
 }
 
 /* ==========================
-   UI CONTROLS - START SCREEN
+   UI
 ========================== */
-function updateStartControls() {
-  if(!selectedGrade) {
-    selectedInfo.textContent = "Bitte eine Klasse auswählen";
-    startBtn.disabled = true;
+function updateStartControls(){
+  if(!selectedDifficulty){
+    selectedInfo.textContent="Bitte eine Schwierigkeit auswählen.";
+    startBtn.disabled=true;
     return;
   }
-  if(!selectedDifficulty) {
-    selectedInfo.textContent = "Bitte eine Schwierigkeit auswählen";
-    startBtn.disabled = true;
-    return;
-  }
-  selectedInfo.textContent = `Ausgewählt: ${GRADE_LABELS[selectedGrade]}, ${DIFF_LABELS[selectedDifficulty]}`;
-  startBtn.disabled = false;
+  selectedInfo.textContent = `Ausgewählt: 1. Klasse, ${DIFF_LABELS[selectedDifficulty]}`;
+  startBtn.disabled=false;
 }
 
-// Klasse Auswahl
-gradeGrid.querySelectorAll(".grade-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const g = Number(btn.dataset.grade);
-    selectedGrade = (selectedGrade === g) ? null : g;
-    gradeGrid.querySelectorAll(".grade-btn").forEach(b => 
-      b.classList.toggle("selected", Number(b.dataset.grade) === selectedGrade)
-    );
-    updateStartControls();
-  });
-});
-
-// Schwierigkeit Auswahl
-difficultyGrid.querySelectorAll(".difficulty-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
+difficultyGrid.querySelectorAll(".difficulty-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
     const d = btn.dataset.diff;
-    selectedDifficulty = (selectedDifficulty === d) ? null : d;
-    difficultyGrid.querySelectorAll(".difficulty-btn").forEach(b => 
-      b.classList.toggle("selected", b.dataset.diff === selectedDifficulty)
-    );
+    selectedDifficulty = (selectedDifficulty===d) ? null : d;
+    difficultyGrid.querySelectorAll(".difficulty-btn").forEach(b=>b.classList.toggle("selected", b.dataset.diff===selectedDifficulty));
     updateStartControls();
   });
 });
 
-// Start Training Button
-startBtn.addEventListener("click", () => {
-  console.log("Start button clicked");
-  startTraining();
+startBtn.addEventListener("click", startTraining);
+restartBtn.addEventListener("click", ()=>{
+  quizScreen.classList.add("hidden");
+  resultScreen.classList.add("hidden");
+  startScreen.classList.remove("hidden");
 });
 
-// Restart Button
-restartBtn.addEventListener("click", () => {
-  showScreen('start');
-});
-
-// Finish Button
-finishBtn.addEventListener("click", () => {
-  finishBtn.disabled = true;
-  finishBtn.textContent = "Erledigt ✔";
-  try {
-    if(window.parent && window.parent !== window) {
-      window.parent.postMessage("AppSolved", "*");
+finishBtn.addEventListener("click", ()=>{
+  finishBtn.disabled=true;
+  finishBtn.textContent="Erledigt ✔";
+  try{
+    if(window.parent && window.parent !== window){
+      window.parent.postMessage("AppSolved","*");
     }
-  } catch(_) {}
+  }catch(_){}
 });
 
 /* ==========================
    QUIZ FLOW
 ========================== */
-function startTraining() {
-  console.log("Starting training...");
-  
-  // Reset all state
-  questionsDone = 0;
-  correctAnswers = 0;
-  wrongAnswers = 0;
+function startTraining(){
+  questionsDone=0; correctAnswers=0; wrongAnswers=0;
   usedKeys = new Set();
-  lastMinuteUsed = null;
+  lastMinute = null;
 
-  // Update stats display
-  statCorrect.textContent = "0";
-  statWrong.textContent = "0";
-  statRemaining.textContent = "20";
+  statCorrect.textContent="0";
+  statWrong.textContent="0";
+  statTotal.textContent=String(TOTAL_QUESTIONS);
+  statMode.textContent=`1. Klasse – ${DIFF_LABELS[selectedDifficulty]}`;
 
-  // Reset recognition
   lastRaw = "";
-  lastSpoken = "—";
-  heardUI.textContent = "—";
-  feedback.textContent = "";
-  feedback.className = "feedback";
+  lastCol = "";
 
-  // Show quiz screen
-  showScreen('quiz');
-  
-  // Generate and show first question
-  setTimeout(() => {
-    newQuestion();
-  }, 100);
+  feedback.textContent="";
+  feedback.className="feedback";
+  heardRawEl.innerHTML="<strong>Rohtext (1:1):</strong> —";
+  heardColEl.innerHTML="<strong>Text in Alltagssprache:</strong> —";
+  fallbackInput.value="";
+
+  startScreen.classList.add("hidden");
+  resultScreen.classList.add("hidden");
+  quizScreen.classList.remove("hidden");
+
+  // Grammatik nach Modus neu setzen (wichtig!)
+  setupSpeech();
+
+  newQuestion();
 }
 
-function newQuestion() {
-  console.log("Generating new question...", questionsDone);
-  
-  // Reset UI for new question
-  feedback.textContent = "";
-  feedback.className = "feedback";
-  lastRaw = "";
-  lastSpoken = "—";
-  heardUI.textContent = "—";
+function newQuestion(){
+  feedback.textContent="";
+  feedback.className="feedback";
+  lastRaw="";
+  lastCol="";
+  heardRawEl.innerHTML="<strong>Rohtext (1:1):</strong> —";
+  heardColEl.innerHTML="<strong>Text in Alltagssprache:</strong> —";
+  fallbackInput.value="";
 
-  // Generate question
   currentQuestion = generateQuestion(questionsDone);
-  console.log("Generated question:", currentQuestion);
-  
-  // Update UI with question data
-  variantLabel.textContent = `Mix: ${currentQuestion.label}`;
-  equationText.textContent = `Sage die Uhrzeit für ${currentQuestion.hour}:${String(currentQuestion.minute).padStart(2, '0')}`;
+
+  variantLabel.textContent = (selectedDifficulty==="hard")
+    ? "Erlaubt: punkt / halb / viertel nach / viertel vor"
+    : "Erlaubt: punkt / halb";
+
   drawClock(currentQuestion.hour, currentQuestion.minute);
-
-  // Update progress
-  progressText.textContent = `Aufgabe ${questionsDone + 1} von ${TOTAL_QUESTIONS}`;
-  statRemaining.textContent = String(TOTAL_QUESTIONS - questionsDone);
+  progressText.textContent = `Aufgabe ${questionsDone+1} von ${TOTAL_QUESTIONS}`;
 }
 
-function applyRecognitionText(raw) {
-  lastRaw = raw || "";
-  lastSpoken = extractFirstAllowedPhrase(lastRaw);
-  heardUI.textContent = lastSpoken;
-  console.log("Recognition result:", { raw, extracted: lastSpoken });
-}
+function checkAnswer(){
+  if(!lastRaw && fallbackInput.value.trim()){
+    lastRaw = fallbackInput.value.trim();
+    lastCol = normalizeToColloquialText(lastRaw);
+    heardRawEl.innerHTML = "<strong>Rohtext (1:1):</strong> " + escapeHtml(lastRaw);
+    heardColEl.innerHTML = "<strong>Text in Alltagssprache:</strong> " + escapeHtml(lastCol);
+  }
 
-function checkAnswer() {
-  console.log("Checking answer...");
-  
-  if(!lastRaw) {
-    showFeedback("Bitte zuerst auf 'Sprechen' klicken und die Uhrzeit sagen", "error");
+  if(!lastCol){
+    feedback.textContent="Ich habe noch keinen Text (Sprechen oder eintippen).";
+    feedback.className="feedback error";
     return;
   }
 
-  const hay = normalizeForCompare(lastRaw);
+  const hay = normalizeForCompare(lastCol);
   const needle = normalizeForCompare(currentQuestion.expected);
-  console.log("Comparing:", { hay, needle, expected: currentQuestion.expected });
-  
   const ok = hay.includes(needle);
 
-  if(ok) {
+  if(ok){
+    playSound(correctSound);
     correctAnswers++;
-    statCorrect.textContent = String(correctAnswers);
-    showFeedback("✓ Richtig! Gut gemacht!", "ok");
-  } else {
+    statCorrect.textContent=String(correctAnswers);
+    feedback.textContent="Richtig! 👍";
+    feedback.className="feedback ok";
+  }else{
+    playSound(errorSound);
     wrongAnswers++;
-    statWrong.textContent = String(wrongAnswers);
-    showFeedback(`✗ Fast! Richtige Antwort: ${currentQuestion.expected}`, "error");
+    statWrong.textContent=String(wrongAnswers);
+    feedback.textContent="Falsch. Gesucht war: " + currentQuestion.expected;
+    feedback.className="feedback error";
   }
 
   questionsDone++;
-  console.log("Questions done:", questionsDone, "/", TOTAL_QUESTIONS);
-  
-  if(questionsDone >= TOTAL_QUESTIONS) {
-    setTimeout(endTraining, 1500);
-  } else {
-    setTimeout(newQuestion, 1500);
-  }
+  if(questionsDone>=TOTAL_QUESTIONS) setTimeout(endTraining, 700);
+  else setTimeout(newQuestion, 700);
 }
 
-function showFeedback(message, type) {
-  feedback.textContent = message;
-  feedback.className = `feedback ${type}`;
-  
-  if(type === "ok") {
-    feedback.innerHTML = `<span style="font-size: 1.5em;">✓</span> ${message}`;
-  } else {
-    feedback.innerHTML = `<span style="font-size: 1.5em;">✗</span> ${message}`;
-  }
-}
-
-function endTraining() {
-  console.log("Ending training...");
-  
-  const percentage = ((correctAnswers / TOTAL_QUESTIONS) * 100).toFixed(0);
-  const grade = percentage >= 90 ? "Sehr gut! 🏆" :
-                percentage >= 75 ? "Gut gemacht! 👍" :
-                percentage >= 60 ? "Weiter so! 👌" :
-                "Mehr Übung hilft! 💪";
-  
-  resultSummary.innerHTML = `
-    <strong>${grade}</strong><br><br>
-    Du hast <strong>${TOTAL_QUESTIONS}</strong> Uhrzeiten gelöst.<br>
-    Richtig: <strong style="color: #10b981;">${correctAnswers}</strong> (${percentage}%)<br>
-    Falsch: <strong style="color: #ef4444;">${wrongAnswers}</strong>
-  `;
-  
-  showScreen('result');
+function endTraining(){
+  quizScreen.classList.add("hidden");
+  resultScreen.classList.remove("hidden");
+  const quote = (correctAnswers/TOTAL_QUESTIONS*100).toFixed(0);
+  resultSummary.innerHTML =
+    `Du hast <strong>${TOTAL_QUESTIONS}</strong> Uhrzeiten gelöst.<br>`+
+    `Richtig: <strong>${correctAnswers}</strong> (${quote}%).<br>`+
+    `Falsch: <strong>${wrongAnswers}</strong>.`;
 }
 
 /* ==========================
-   SPEECH RECOGNITION
+   SPEECH
 ========================== */
-let recognizer = null;
-let isListening = false;
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognizer=null, isListening=false;
 
-function setupSpeech() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  
-  if(!SpeechRecognition) {
-    srNote.textContent = "Spracherkennung nicht verfügbar. Bitte Chrome oder Edge verwenden.";
+function setupSpeech(){
+  // falls schon aktiv: sauber stoppen und neu erzeugen
+  try{ if(recognizer && isListening) recognizer.stop(); }catch(_){}
+  recognizer = null;
+  isListening = false;
+
+  if(!SR){
+    micBtn.disabled=true;
+    micBtn.textContent="🎤 Nicht verfügbar";
+    fallbackWrap.classList.remove("hidden");
+    srNote.textContent="Spracherkennung läuft am zuverlässigsten in Chrome/Edge.";
     return;
   }
 
-  try {
-    recognizer = new SpeechRecognition();
-    recognizer.lang = "de-DE";
-    recognizer.interimResults = false;
-    recognizer.continuous = false;
-    recognizer.maxAlternatives = 1;
+  recognizer = new SR();
 
-    recognizer.onstart = () => {
-      isListening = true;
-      micBtn.classList.add("listening");
-      micBtn.innerHTML = '<span>⏹</span> Aufnahme...';
-      showFeedback("Sprich jetzt die Uhrzeit...", "ok");
-    };
+  // Grammatik passend zum Modus (nur erlaubte Phrasen)
+  const SGL = window.SpeechGrammarList || window.webkitSpeechGrammarList;
+  if (SGL){
+    const hours = ["eins","zwei","drei","vier","fünf","sechs","sieben","acht","neun","zehn","elf","zwölf"];
+    const prefixesEasy = ["punkt","halb"];
+    const prefixesHard = ["punkt","halb","viertel nach","viertel vor"];
+    const prefixes = (selectedDifficulty==="hard") ? prefixesHard : prefixesEasy;
 
-    recognizer.onend = () => {
-      isListening = false;
-      micBtn.classList.remove("listening");
-      micBtn.innerHTML = '<span>🎤</span> Sprechen';
-    };
+    const phrases = [];
+    for (const p of prefixes) for (const h of hours) phrases.push(`${p} ${h}`);
 
-    recognizer.onerror = (e) => {
-      console.error("Speech recognition error:", e.error);
-      isListening = false;
-      micBtn.classList.remove("listening");
-      micBtn.innerHTML = '<span>🎤</span> Sprechen';
-      
-      if(e.error === "not-allowed") {
-        showFeedback("Mikrofon-Zugriff wurde verweigert", "error");
-      } else if(e.error === "no-speech") {
-        showFeedback("Keine Sprache erkannt. Bitte lauter sprechen", "error");
-      } else {
-        showFeedback(`Sprach-Fehler: ${e.error}`, "error");
-      }
-    };
+    const grammar =
+      "#JSGF V1.0; grammar time; public <time> = " +
+      phrases.join(" | ") + " ;";
 
-    recognizer.onresult = (e) => {
-      const transcript = e.results[0][0].transcript;
-      console.log("Speech recognized:", transcript);
-      applyRecognitionText(transcript);
-      showFeedback("Sprache erkannt! Klicke auf 'Überprüfen'", "ok");
-    };
-
-  } catch(error) {
-    console.error("Speech recognition setup error:", error);
-    srNote.textContent = "Spracherkennung konnte nicht gestartet werden";
+    const gl = new SGL();
+    gl.addFromString(grammar, 1);
+    recognizer.grammars = gl;
   }
-}
 
-// Mikrofon Button Event
-micBtn.addEventListener("click", () => {
-  console.log("Mic button clicked");
-  
-  if(!recognizer) {
-    setupSpeech();
-    if(!recognizer) {
-      showFeedback("Spracherkennung nicht verfügbar", "error");
+  recognizer.lang = "de-CH";
+  recognizer.interimResults = true;
+  recognizer.continuous = true;
+  recognizer.maxAlternatives = 8;
+
+  recognizer.onstart = () => {
+    isListening=true;
+    micBtn.classList.add("listening");
+    micBtn.textContent="⏹ Stop";
+    feedback.textContent="";
+    feedback.className="feedback";
+  };
+
+  recognizer.onend = () => {
+    isListening=false;
+    micBtn.classList.remove("listening");
+    micBtn.textContent="🎤 Sprechen";
+    clearTimeout(silenceTimer);
+    silenceTimer = null;
+  };
+
+  recognizer.onerror = (e) => {
+    feedback.textContent="Sprach-Fehler: " + (e.error || "unbekannt");
+    feedback.className="feedback error";
+    fallbackWrap.classList.remove("hidden");
+  };
+
+  recognizer.onresult = (e) => {
+    const res = e.results;
+    let chunk = "";
+    for (let i = e.resultIndex; i < res.length; i++) {
+      if (!res[i].isFinal) continue;
+
+      const best = (res[i]?.[0]?.transcript || "").trim();
+      if (!best) continue;
+
+      if (best === lastFinalChunk) continue;
+      lastFinalChunk = best;
+
+      chunk += (chunk ? " " : "") + best;
+    }
+
+    if (chunk) speechBuffer = (speechBuffer ? speechBuffer + " " : "") + chunk;
+    speechBuffer = speechBuffer.replace(/\s+/g, " ").trim();
+
+    lastRaw = speechBuffer;
+    lastCol = normalizeToColloquialText(lastRaw);
+
+    heardRawEl.innerHTML = "<strong>Rohtext (1:1):</strong> " + escapeHtml(lastRaw || "—");
+    heardColEl.innerHTML = "<strong>Text in Alltagssprache:</strong> " + escapeHtml(lastCol || "—");
+
+    clearTimeout(silenceTimer);
+
+    if (!bufferHasHour(lastRaw)) {
+      feedback.textContent = "Stunde fehlt – bitte z.B. „… sieben“ ergänzen.";
+      feedback.className = "feedback error";
+      silenceTimer = setTimeout(() => { try { recognizer.stop(); } catch(_) {} }, 2500);
       return;
     }
-  }
 
-  if(isListening) {
-    console.log("Stopping recognition");
-    recognizer.stop();
-  } else {
-    console.log("Starting recognition");
-    try {
-      recognizer.start();
-    } catch(error) {
-      console.error("Error starting recognition:", error);
-      showFeedback("Bitte kurz warten und erneut klicken", "error");
-    }
+    feedback.textContent = "OK – erkannt. (Jetzt „Überprüfen“.)";
+    feedback.className = "feedback ok";
+
+    silenceTimer = setTimeout(() => { try { recognizer.stop(); } catch(_) {} }, 900);
+  };
+
+  srNote.textContent="Mikrofon erlauben, dann „Sprechen“ klicken. (Chrome/Edge empfohlen)";
+}
+
+micBtn.addEventListener("click", ()=>{
+  if(!recognizer){ fallbackWrap.classList.remove("hidden"); return; }
+  if(isListening){ try{ recognizer.stop(); }catch(_){ } return; }
+  try{
+    speechBuffer = "";
+    lastFinalChunk = "";
+    lastRaw = "";
+    lastCol = "";
+    clearTimeout(silenceTimer);
+    silenceTimer = null;
+    recognizer.start();
+  }catch(_){
+    feedback.textContent="Bitte kurz warten und nochmals klicken.";
+    feedback.className="feedback error";
   }
 });
 
-// Check Button Event
 checkBtn.addEventListener("click", checkAnswer);
-
-// Enter-Taste für schnelle Überprüfung
-document.addEventListener("keydown", (e) => {
-  if(e.key === "Enter" && quizScreen.style.display === 'flex') {
-    checkAnswer();
-  }
+fallbackInput.addEventListener("keydown",(e)=>{
+  if(e.key==="Enter"){ e.preventDefault(); checkAnswer(); }
 });
 
 /* ==========================
-   INITIALIZATION
+   INIT
 ========================== */
-function init() {
-  console.log("Initializing app...");
-  
-  // Initialisiere die Uhr
-  drawClock(12, 0);
-  
-  // Setup speech recognition
-  setupSpeech();
-  
-  // Zeige Start-Screen
-  showScreen('start');
-  
-  // Initialisiere UI Controls
+(function init(){
+  statTotal.textContent=String(TOTAL_QUESTIONS);
+  drawClock(12,0);
   updateStartControls();
-}
-
-// Starte die App wenn DOM geladen ist
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+  setupSpeech();
+})();
 </script>
 </body>
 </html>
